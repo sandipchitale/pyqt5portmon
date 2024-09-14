@@ -1,8 +1,9 @@
 # PyQt5 introduction
 import sys
+
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import (QApplication, QMainWindow, QWidget, QGridLayout, QVBoxLayout, QSizePolicy,
-                             QToolBar, QPushButton, QLineEdit, QTableWidget, QTableWidgetItem, QStyledItemDelegate)
+                             QToolBar, QPushButton, QLineEdit, QTableWidget, QTableWidgetItem)
 
 from netstat import Netstat
 
@@ -17,6 +18,8 @@ class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
         self.netstatTable = QTableWidget()
+        self.ports = QLineEdit()
+
         self.netstat = Netstat()
         self.setWindowTitle("iaconsole")
         self.setGeometry(500, 100, 645, 600)
@@ -48,11 +51,11 @@ class MainWindow(QMainWindow):
         primaryToolbarLayout = primaryToolbar.layout()
         primaryToolbarLayout.setSpacing(4)
 
-        ports = QLineEdit()
-        primaryToolbar.addWidget(ports)
-        ports.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
+        primaryToolbar.addWidget(self.ports)
+        self.ports.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
 
-        refreshButton = QPushButton("Refresh", clicked=lambda : self.refresh())
+        refreshButton = QPushButton("Refresh")
+        refreshButton.clicked.connect(lambda : self.refresh())
         primaryToolbar.addWidget(refreshButton)
 
         foregroundWidgetLayout.setStretch(0, 0)
@@ -80,7 +83,10 @@ class MainWindow(QMainWindow):
     def refresh(self):
         self.netstatTable.setRowCount(0)
         try:
-            netstatRecords = self.netstat.netstat()
+            ports = [int(port) for port in self.ports.text().split(",") if port and str.isdigit(port.strip())]
+            netstatRecords = sorted(self.netstat.netstat(), key=lambda nsr: nsr.localPort)
+            if len(ports) > 0:
+                netstatRecords = tuple(filter(lambda nsr: nsr.localPort in ports, netstatRecords))
             self.netstatTable.setRowCount(len(netstatRecords))
             row = 0
             for netstatRecord in sorted(netstatRecords, key=lambda nsr: nsr.localPort):
@@ -102,7 +108,6 @@ class MainWindow(QMainWindow):
             print(cpe)
         except BaseException as be:
             print(be)
-        x = 0
 
 def main():
     app = QApplication(sys.argv)
