@@ -15,10 +15,12 @@ class ForegroundWidget(QWidget):
 
 class MainWindow(QMainWindow):
     COLUMN_HEADERS =  ("Local Address", "Local Port", "Foreign Address", "Foreign Port", "State", "PID", "Actions")
+
     def __init__(self):
         super().__init__()
         self.netstatTable = QTableWidget()
         self.ports = QLineEdit()
+        # noinspection PyUnresolvedReferences
         self.ports.returnPressed.connect(lambda : self.refresh())
         self.netstat = Netstat()
         self.setWindowTitle("iaconsole")
@@ -54,7 +56,8 @@ class MainWindow(QMainWindow):
         primaryToolbar.addWidget(self.ports)
         self.ports.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
 
-        refreshButton = QPushButton("Refresh")
+        refreshButton = QPushButton("↻")
+        # noinspection PyUnresolvedReferences
         refreshButton.clicked.connect(self.refresh)
         primaryToolbar.addWidget(refreshButton)
 
@@ -102,7 +105,8 @@ class MainWindow(QMainWindow):
                 pidItem = QTableWidgetItem(netstatRecord.pid)
                 pidItem.setTextAlignment(Qt.AlignRight|Qt.AlignVCenter)
                 self.netstatTable.setItem(row, 5, pidItem)
-                self.netstatTable.setItem(row, 6, QTableWidgetItem("Delete"))
+                deleteButton = QPushButton("⨉")
+                self.netstatTable.setCellWidget(row, 6, deleteButton)
                 row += 1
         except ChildProcessError as cpe:
             print(cpe)
