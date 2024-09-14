@@ -19,7 +19,7 @@ class MainWindow(QMainWindow):
         super().__init__()
         self.netstatTable = QTableWidget()
         self.ports = QLineEdit()
-
+        self.ports.returnPressed.connect(lambda : self.refresh())
         self.netstat = Netstat()
         self.setWindowTitle("iaconsole")
         self.setGeometry(500, 100, 645, 600)
@@ -55,7 +55,7 @@ class MainWindow(QMainWindow):
         self.ports.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
 
         refreshButton = QPushButton("Refresh")
-        refreshButton.clicked.connect(lambda : self.refresh())
+        refreshButton.clicked.connect(self.refresh)
         primaryToolbar.addWidget(refreshButton)
 
         foregroundWidgetLayout.setStretch(0, 0)
