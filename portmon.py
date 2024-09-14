@@ -3,9 +3,10 @@ import sys
 
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import (QApplication, QMainWindow, QWidget, QGridLayout, QVBoxLayout, QSizePolicy,
-                             QToolBar, QPushButton, QLineEdit, QTableWidget, QTableWidgetItem)
+                             QToolBar, QPushButton, QLineEdit, QTableWidget, QTableWidgetItem, QCheckBox, QLabel,
+                             QHeaderView)
 
-from netstat import Netstat
+from netstat import Netstat, NetstatRecord
 
 
 class ForegroundWidget(QWidget):
@@ -19,7 +20,21 @@ class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
         self.netstatTable = QTableWidget()
+
         self.ports = QLineEdit()
+
+        self.close_wait = QCheckBox("CLOSE_WAIT")
+        self.close_wait.setChecked(False)
+
+        self.established = QCheckBox("ESTABLISHED")
+        self.established.setChecked(True)
+
+        self.listen = QCheckBox("LISTEN")
+        self.listen.setChecked(True)
+
+        self.time_wait = QCheckBox("TIME_WAIT")
+        self.time_wait.setChecked(False)
+
         # noinspection PyUnresolvedReferences
         self.ports.returnPressed.connect(lambda : self.refresh())
         self.netstat = Netstat()
@@ -63,6 +78,31 @@ class MainWindow(QMainWindow):
 
         foregroundWidgetLayout.setStretch(0, 0)
 
+        statesToolbar = QToolBar()
+        foregroundWidgetLayout.addWidget(statesToolbar)
+
+        statesToolbar.addWidget(self.close_wait)
+
+        stretcher = QLabel("")
+        stretcher.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
+        statesToolbar.addWidget(stretcher)
+
+        statesToolbar.addWidget(self.established)
+
+        stretcher = QLabel("")
+        stretcher.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
+        statesToolbar.addWidget(stretcher)
+
+        statesToolbar.addWidget(self.listen)
+
+        stretcher = QLabel("")
+        stretcher.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
+        statesToolbar.addWidget(stretcher)
+
+        statesToolbar.addWidget(self.time_wait)
+
+        foregroundWidgetLayout.setStretch(1, 0)
+
         self.netstatTable.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
         foregroundWidgetLayout.addWidget(self.netstatTable)
 
@@ -78,18 +118,31 @@ class MainWindow(QMainWindow):
         self.netstatTable.setHorizontalHeaderLabels(MainWindow.COLUMN_HEADERS)
         self.netstatTable.verticalHeader().setVisible(False)
 
+        self.netstatTable.horizontalHeader().setSectionResizeMode(0, QHeaderView.Stretch)
+        self.netstatTable.horizontalHeader().setSectionResizeMode(2, QHeaderView.Stretch)
+
         self.netstatTable.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOn)
         self.netstatTable.setHorizontalScrollBarPolicy(Qt.ScrollBarAsNeeded)
 
-        foregroundWidgetLayout.setStretch(1, 1)
+        foregroundWidgetLayout.setStretch(2, 1)
+
+    def applyStateFilters(self, netstatRecords: list[NetstatRecord]):
+        return [nsr for nsr in netstatRecords if
+                ("CLOSE_WAIT" == nsr.state and self.close_wait.isChecked()) or
+                ("ESTABLISHED" == nsr.state and self.established.isChecked()) or
+                ("LISTEN" == nsr.state and self.listen.isChecked()) or
+                ("TIME_WAIT" == nsr.state and self.time_wait.isChecked())]
 
     def refresh(self):
         self.netstatTable.setRowCount(0)
         try:
             ports = [int(port) for port in self.ports.text().split(",") if port and str.isdigit(port.strip())]
-            netstatRecords = sorted(self.netstat.netstat(), key=lambda nsr: nsr.localPort)
+            netstatRecords = self.netstat.netstat()
             if len(ports) > 0:
-                netstatRecords = tuple(filter(lambda nsr: nsr.localPort in ports, netstatRecords))
+                netstatRecords = list(filter(lambda nsr: nsr.localPort in ports, netstatRecords))
+            netstatRecords = self.applyStateFilters(netstatRecords)
+            netstatRecords = sorted(self.netstat.netstat(), key=lambda nsr: nsr.localPort)
+
             self.netstatTable.setRowCount(len(netstatRecords))
             row = 0
             for netstatRecord in sorted(netstatRecords, key=lambda nsr: nsr.localPort):
