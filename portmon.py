@@ -141,7 +141,7 @@ class MainWindow(QMainWindow):
             if len(ports) > 0:
                 netstatRecords = list(filter(lambda nsr: nsr.localPort in ports, netstatRecords))
             netstatRecords = self.applyStateFilters(netstatRecords)
-            netstatRecords = sorted(self.netstat.netstat(), key=lambda nsr: nsr.localPort)
+            netstatRecords = sorted(netstatRecords, key=lambda nsr: nsr.localPort)
 
             self.netstatTable.setRowCount(len(netstatRecords))
             row = 0
