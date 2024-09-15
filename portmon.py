@@ -23,22 +23,24 @@ class MainWindow(QMainWindow):
 
         self.ports = QLineEdit()
 
-        self.close_wait = QCheckBox("CLOSE_WAIT")
+        self.netstatRecordsCount = QLabel("Count: 0")
+
+        self.close_wait = QCheckBox("CLOSE_WAIT    ")
         self.close_wait.setChecked(False)
         # noinspection PyUnresolvedReferences
         self.close_wait.clicked.connect(lambda : self.refresh())
 
-        self.established = QCheckBox("ESTABLISHED")
+        self.established = QCheckBox("ESTABLISHED    ")
         self.established.setChecked(True)
         # noinspection PyUnresolvedReferences
         self.established.clicked.connect(lambda : self.refresh())
 
-        self.listen = QCheckBox("LISTEN")
+        self.listen = QCheckBox("LISTEN    ")
         self.listen.setChecked(True)
         # noinspection PyUnresolvedReferences
         self.listen.clicked.connect(lambda : self.refresh())
 
-        self.time_wait = QCheckBox("TIME_WAIT")
+        self.time_wait = QCheckBox("TIME_WAIT    ")
         self.time_wait.setChecked(False)
         # noinspection PyUnresolvedReferences
         self.time_wait.clicked.connect(lambda : self.refresh())
@@ -46,7 +48,7 @@ class MainWindow(QMainWindow):
         # noinspection PyUnresolvedReferences
         self.ports.returnPressed.connect(lambda : self.refresh())
         self.netstat = Netstat()
-        self.setWindowTitle("iaconsole")
+        self.setWindowTitle("Port Monitor")
         self.setGeometry(500, 100, 900, 600)
         self.initUI()
         self.refresh()
@@ -76,6 +78,8 @@ class MainWindow(QMainWindow):
         primaryToolbarLayout = primaryToolbar.layout()
         primaryToolbarLayout.setSpacing(4)
 
+        primaryToolbar.addWidget(QLabel("Only ports: "))
+
         primaryToolbar.addWidget(self.ports)
         self.ports.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
 
@@ -86,27 +90,20 @@ class MainWindow(QMainWindow):
 
         foregroundWidgetLayout.setStretch(0, 0)
 
+
         statesToolbar = QToolBar()
         foregroundWidgetLayout.addWidget(statesToolbar)
 
+        statesToolbar.addWidget(self.netstatRecordsCount)
+
+        stretcher = QLabel("")
+        stretcher.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
+        statesToolbar.addWidget(stretcher)
+
+        statesToolbar.addWidget(QLabel("States:    "))
         statesToolbar.addWidget(self.close_wait)
-
-        stretcher = QLabel("")
-        stretcher.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
-        statesToolbar.addWidget(stretcher)
-
         statesToolbar.addWidget(self.established)
-
-        stretcher = QLabel("")
-        stretcher.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
-        statesToolbar.addWidget(stretcher)
-
         statesToolbar.addWidget(self.listen)
-
-        stretcher = QLabel("")
-        stretcher.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
-        statesToolbar.addWidget(stretcher)
-
         statesToolbar.addWidget(self.time_wait)
 
         foregroundWidgetLayout.setStretch(1, 0)
@@ -162,6 +159,7 @@ class MainWindow(QMainWindow):
             netstatRecords = sorted(netstatRecords, key=lambda nsr: nsr.localPort)
 
             self.netstatTable.setRowCount(len(netstatRecords))
+            self.netstatRecordsCount.setText(f"Count: {len(netstatRecords)}")
             for row, netstatRecord in enumerate(sorted(netstatRecords, key=lambda nsr: nsr.localPort)):
                 self.netstatTable.setItem(row, 0, QTableWidgetItem(netstatRecord.localAddress))
                 localPortItem = QTableWidgetItem(str(netstatRecord.localPort))
