@@ -40,7 +40,7 @@ class MainWindow(QMainWindow):
         # noinspection PyUnresolvedReferences
         self.listen.clicked.connect(lambda : self.refresh())
 
-        self.time_wait = QCheckBox("TIME_WAIT    ")
+        self.time_wait = QCheckBox("TIME_WAIT                          ")
         self.time_wait.setChecked(False)
         # noinspection PyUnresolvedReferences
         self.time_wait.clicked.connect(lambda : self.refresh())
@@ -117,13 +117,13 @@ class MainWindow(QMainWindow):
         self.netstatTable.setColumnWidth(3, 80)
         self.netstatTable.setColumnWidth(4, 100)
         self.netstatTable.setColumnWidth(5, 80)
-        self.netstatTable.setColumnWidth(6, 50)
+        self.netstatTable.setColumnWidth(6, 70)
 
         self.netstatTable.setHorizontalHeaderLabels(MainWindow.COLUMN_HEADERS)
 
         for i in [1, 3, 5]:
             headerItem = self.netstatTable.horizontalHeaderItem(i)
-            headerItem.setTextAlignment(Qt.AlignRight|Qt.AlignVCenter)
+            headerItem.setTextAlignment(Qt.AlignRight | Qt.AlignVCenter)
 
         self.netstatTable.verticalHeader().setVisible(False)
 
