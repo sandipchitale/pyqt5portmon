@@ -90,7 +90,6 @@ class MainWindow(QMainWindow):
 
         foregroundWidgetLayout.setStretch(0, 0)
 
-
         statesToolbar = QToolBar()
         foregroundWidgetLayout.addWidget(statesToolbar)
 
@@ -121,6 +120,11 @@ class MainWindow(QMainWindow):
         self.netstatTable.setColumnWidth(6, 50)
 
         self.netstatTable.setHorizontalHeaderLabels(MainWindow.COLUMN_HEADERS)
+
+        for i in [1, 3, 5]:
+            headerItem = self.netstatTable.horizontalHeaderItem(i)
+            headerItem.setTextAlignment(Qt.AlignRight|Qt.AlignVCenter)
+
         self.netstatTable.verticalHeader().setVisible(False)
 
         self.netstatTable.horizontalHeader().setSectionResizeMode(0, QHeaderView.Stretch)
