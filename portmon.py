@@ -133,6 +133,9 @@ class MainWindow(QMainWindow):
                 ("LISTEN" == nsr.state and self.listen.isChecked()) or
                 ("TIME_WAIT" == nsr.state and self.time_wait.isChecked())]
 
+    def killProcess(self, pid):
+        print(f"Killing process with PID: {pid}")
+
     def refresh(self):
         self.netstatTable.setRowCount(0)
         try:
@@ -158,8 +161,13 @@ class MainWindow(QMainWindow):
                 pidItem = QTableWidgetItem(netstatRecord.pid)
                 pidItem.setTextAlignment(Qt.AlignRight|Qt.AlignVCenter)
                 self.netstatTable.setItem(row, 5, pidItem)
-                deleteButton = QPushButton("⨉")
-                self.netstatTable.setCellWidget(row, 6, deleteButton)
+                if netstatRecord.pid != "-":
+                    killPidButton = QPushButton("⨉")
+                    self.netstatTable.setCellWidget(row, 6, killPidButton)
+                    def make_lambda(pid):
+                        return lambda ev: self.killProcess(pid)
+                    # noinspection PyUnresolvedReferences
+                    killPidButton.clicked.connect(make_lambda(netstatRecord.pid))
                 row += 1
         except ChildProcessError as cpe:
             print(cpe)
