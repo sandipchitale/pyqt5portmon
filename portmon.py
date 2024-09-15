@@ -154,8 +154,7 @@ class MainWindow(QMainWindow):
             netstatRecords = sorted(netstatRecords, key=lambda nsr: nsr.localPort)
 
             self.netstatTable.setRowCount(len(netstatRecords))
-            row = 0
-            for netstatRecord in sorted(netstatRecords, key=lambda nsr: nsr.localPort):
+            for row, netstatRecord in enumerate(sorted(netstatRecords, key=lambda nsr: nsr.localPort)):
                 self.netstatTable.setItem(row, 0, QTableWidgetItem(netstatRecord.localAddress))
                 localPortItem = QTableWidgetItem(str(netstatRecord.localPort))
                 localPortItem.setTextAlignment(Qt.AlignRight|Qt.AlignVCenter)
@@ -175,7 +174,6 @@ class MainWindow(QMainWindow):
                         return lambda ev: MainWindow.killProcess(pid)
                     # noinspection PyUnresolvedReferences
                     killPidButton.clicked.connect(make_lambda(netstatRecord.pid))
-                row += 1
         except ChildProcessError as cpe:
             print(cpe)
         except BaseException as be:
