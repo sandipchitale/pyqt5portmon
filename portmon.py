@@ -4,7 +4,7 @@ import sys
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import (QApplication, QMainWindow, QWidget, QGridLayout, QVBoxLayout, QSizePolicy,
                              QToolBar, QPushButton, QLineEdit, QTableWidget, QTableWidgetItem, QCheckBox, QLabel,
-                             QHeaderView)
+                             QHeaderView, QMessageBox)
 
 from netstat import Netstat, NetstatRecord
 
@@ -133,8 +133,15 @@ class MainWindow(QMainWindow):
                 ("LISTEN" == nsr.state and self.listen.isChecked()) or
                 ("TIME_WAIT" == nsr.state and self.time_wait.isChecked())]
 
-    def killProcess(self, pid):
-        print(f"Killing process with PID: {pid}")
+    @staticmethod
+    def killProcess(pid):
+        msg = QMessageBox()
+        msg.setIcon(QMessageBox.Question)
+        msg.setWindowTitle(" ")
+        msg.setText(f"Kill: {pid} ?")
+        msg.setStandardButtons(QMessageBox.Ok | QMessageBox.Cancel)
+        if msg.exec_() == QMessageBox.Ok:
+            print(f"Killing: {pid}.")
 
     def refresh(self):
         self.netstatTable.setRowCount(0)
@@ -165,7 +172,7 @@ class MainWindow(QMainWindow):
                     killPidButton = QPushButton("⨉")
                     self.netstatTable.setCellWidget(row, 6, killPidButton)
                     def make_lambda(pid):
-                        return lambda ev: self.killProcess(pid)
+                        return lambda ev: MainWindow.killProcess(pid)
                     # noinspection PyUnresolvedReferences
                     killPidButton.clicked.connect(make_lambda(netstatRecord.pid))
                 row += 1
