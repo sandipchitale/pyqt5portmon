@@ -25,21 +25,29 @@ class MainWindow(QMainWindow):
 
         self.close_wait = QCheckBox("CLOSE_WAIT")
         self.close_wait.setChecked(False)
+        # noinspection PyUnresolvedReferences
+        self.close_wait.clicked.connect(lambda : self.refresh())
 
         self.established = QCheckBox("ESTABLISHED")
         self.established.setChecked(True)
+        # noinspection PyUnresolvedReferences
+        self.established.clicked.connect(lambda : self.refresh())
 
         self.listen = QCheckBox("LISTEN")
         self.listen.setChecked(True)
+        # noinspection PyUnresolvedReferences
+        self.listen.clicked.connect(lambda : self.refresh())
 
         self.time_wait = QCheckBox("TIME_WAIT")
         self.time_wait.setChecked(False)
+        # noinspection PyUnresolvedReferences
+        self.time_wait.clicked.connect(lambda : self.refresh())
 
         # noinspection PyUnresolvedReferences
         self.ports.returnPressed.connect(lambda : self.refresh())
         self.netstat = Netstat()
         self.setWindowTitle("iaconsole")
-        self.setGeometry(500, 100, 645, 600)
+        self.setGeometry(500, 100, 900, 600)
         self.initUI()
         self.refresh()
 
