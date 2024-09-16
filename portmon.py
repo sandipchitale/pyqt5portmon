@@ -18,7 +18,7 @@ class ForegroundWidget(QWidget):
 
 
 class MainWindow(QMainWindow):
-    COLUMN_HEADERS = ("Local Address", "Local Port", "Foreign Address", "Foreign Port", "State", "PID", "Actions")
+    COLUMN_HEADERS = ("Local Address", "Local Port", "Foreign Address", "Foreign Port", "State", "PID", "Kill")
 
     def __init__(self):
         super().__init__()
@@ -131,7 +131,7 @@ class MainWindow(QMainWindow):
         self.netstatTable.setColumnWidth(3, 80)
         self.netstatTable.setColumnWidth(4, 100)
         self.netstatTable.setColumnWidth(5, 80)
-        self.netstatTable.setColumnWidth(6, 80)
+        self.netstatTable.setColumnWidth(6, 20)
 
         self.netstatTable.setHorizontalHeaderLabels(MainWindow.COLUMN_HEADERS)
 
@@ -195,11 +195,10 @@ class MainWindow(QMainWindow):
                     killPidButton = QPushButton("")
                     killPidButton.setIcon(QIcon("icons/killpid.png"))
                     killPidButton.setIconSize(QSize(20, 20))
+                    killPidButton.setStyleSheet("border: 0 solid #bbb; width: 20px;")
                     self.netstatTable.setCellWidget(row, 6, killPidButton)
-
                     def make_lambda(pid):
                         return lambda ev: MainWindow.killProcess(pid)
-
                     # noinspection PyUnresolvedReferences
                     killPidButton.clicked.connect(make_lambda(netstatRecord.pid))
         except ChildProcessError as cpe:
