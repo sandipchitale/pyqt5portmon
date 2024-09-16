@@ -23,6 +23,7 @@ class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
         self.netstatTable = QTableWidget()
+
         user = environ.get("USER")
         if platform == "linux" and "root" != user:
             self.netstatTable.setToolTip(f"On process ids owned by user '{user}' are available. Maybe run as sudo.")
@@ -85,7 +86,7 @@ class MainWindow(QMainWindow):
         primaryToolbarLayout.setSpacing(4)
 
         portsLabel = QLabel("")
-        portsLabel.setPixmap(QIcon("icons/port.png").pixmap(18, 18))
+        portsLabel.setPixmap(QIcon("icons/port.png").pixmap(20, 20))
         portsLabel.setToolTip("Specify comma separated list of ports to show. e.g. 8080,9090")
         primaryToolbar.addWidget(portsLabel)
 
@@ -94,6 +95,7 @@ class MainWindow(QMainWindow):
 
         refreshButton = QPushButton()
         refreshButton.setIcon(QIcon("icons/refresh.png"))
+        refreshButton.setIconSize(QSize(20, 20))
         # noinspection PyUnresolvedReferences
         refreshButton.clicked.connect(self.refresh)
         primaryToolbar.addWidget(refreshButton)
@@ -192,6 +194,7 @@ class MainWindow(QMainWindow):
                 if netstatRecord.pid != "-":
                     killPidButton = QPushButton("")
                     killPidButton.setIcon(QIcon("icons/killpid.png"))
+                    killPidButton.setIconSize(QSize(20, 20))
                     self.netstatTable.setCellWidget(row, 6, killPidButton)
                     def make_lambda(pid):
                         return lambda ev: MainWindow.killProcess(pid)
