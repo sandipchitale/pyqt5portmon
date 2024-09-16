@@ -1,4 +1,3 @@
-# PyQt5 introduction
 import sys
 from os import environ
 from sys import platform
