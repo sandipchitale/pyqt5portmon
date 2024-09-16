@@ -2,6 +2,7 @@
 import sys
 
 from PyQt5.QtCore import *
+from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import (QApplication, QMainWindow, QWidget, QGridLayout, QVBoxLayout, QSizePolicy,
                              QToolBar, QPushButton, QLineEdit, QTableWidget, QTableWidgetItem, QCheckBox, QLabel,
                              QHeaderView, QMessageBox)
@@ -78,12 +79,15 @@ class MainWindow(QMainWindow):
         primaryToolbarLayout = primaryToolbar.layout()
         primaryToolbarLayout.setSpacing(4)
 
-        primaryToolbar.addWidget(QLabel("Only ports: "))
+        portsLabel = QLabel("")
+        portsLabel.setPixmap(QIcon("icons/port.png").pixmap(18, 18))
+        primaryToolbar.addWidget(portsLabel)
 
         primaryToolbar.addWidget(self.ports)
         self.ports.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
 
-        refreshButton = QPushButton("↻")
+        refreshButton = QPushButton()
+        refreshButton.setIcon(QIcon("icons/refresh.png"))
         # noinspection PyUnresolvedReferences
         refreshButton.clicked.connect(self.refresh)
         primaryToolbar.addWidget(refreshButton)
@@ -180,7 +184,8 @@ class MainWindow(QMainWindow):
                 pidItem.setTextAlignment(Qt.AlignRight|Qt.AlignVCenter)
                 self.netstatTable.setItem(row, 5, pidItem)
                 if netstatRecord.pid != "-":
-                    killPidButton = QPushButton("⨉")
+                    killPidButton = QPushButton("")
+                    killPidButton.setIcon(QIcon("icons/killpid.png"))
                     self.netstatTable.setCellWidget(row, 6, killPidButton)
                     def make_lambda(pid):
                         return lambda ev: MainWindow.killProcess(pid)
