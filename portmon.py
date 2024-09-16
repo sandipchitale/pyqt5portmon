@@ -1,5 +1,7 @@
 # PyQt5 introduction
 import sys
+from os import environ
+from sys import platform
 
 from PyQt5.QtCore import *
 from PyQt5.QtGui import QIcon
@@ -21,6 +23,9 @@ class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
         self.netstatTable = QTableWidget()
+        user = environ.get("USER")
+        if platform == "linux" and "root" != user:
+            self.netstatTable.setToolTip(f"On process ids owned by user '{user}' are available. Maybe run as sudo.")
 
         self.ports = QLineEdit()
 
@@ -81,6 +86,7 @@ class MainWindow(QMainWindow):
 
         portsLabel = QLabel("")
         portsLabel.setPixmap(QIcon("icons/port.png").pixmap(18, 18))
+        portsLabel.setToolTip("Specify comma separated list of ports to show. e.g. 8080,9090")
         primaryToolbar.addWidget(portsLabel)
 
         primaryToolbar.addWidget(self.ports)
