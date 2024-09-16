@@ -17,8 +17,9 @@ class ForegroundWidget(QWidget):
         super().__init__()
         self.mainWindow = mainWindow
 
+
 class MainWindow(QMainWindow):
-    COLUMN_HEADERS =  ("Local Address", "Local Port", "Foreign Address", "Foreign Port", "State", "PID", "Actions")
+    COLUMN_HEADERS = ("Local Address", "Local Port", "Foreign Address", "Foreign Port", "State", "PID", "Actions")
 
     def __init__(self):
         super().__init__()
@@ -35,25 +36,25 @@ class MainWindow(QMainWindow):
         self.close_wait = QCheckBox("CLOSE_WAIT    ")
         self.close_wait.setChecked(False)
         # noinspection PyUnresolvedReferences
-        self.close_wait.clicked.connect(lambda : self.refresh())
+        self.close_wait.clicked.connect(lambda: self.refresh())
 
         self.established = QCheckBox("ESTABLISHED    ")
         self.established.setChecked(True)
         # noinspection PyUnresolvedReferences
-        self.established.clicked.connect(lambda : self.refresh())
+        self.established.clicked.connect(lambda: self.refresh())
 
         self.listen = QCheckBox("LISTEN    ")
         self.listen.setChecked(True)
         # noinspection PyUnresolvedReferences
-        self.listen.clicked.connect(lambda : self.refresh())
+        self.listen.clicked.connect(lambda: self.refresh())
 
         self.time_wait = QCheckBox("TIME_WAIT  ")
         self.time_wait.setChecked(False)
         # noinspection PyUnresolvedReferences
-        self.time_wait.clicked.connect(lambda : self.refresh())
+        self.time_wait.clicked.connect(lambda: self.refresh())
 
         # noinspection PyUnresolvedReferences
-        self.ports.returnPressed.connect(lambda : self.refresh())
+        self.ports.returnPressed.connect(lambda: self.refresh())
         self.netstat = Netstat()
         self.setWindowTitle("Port Monitor")
         self.setGeometry(500, 100, 900, 600)
@@ -76,7 +77,7 @@ class MainWindow(QMainWindow):
         centralWidgetGridLayout.addWidget(foregroundWidget, 0, 0)
         foregroundWidget.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
 
-        foregroundWidgetLayout.setContentsMargins(0,0,0,0)
+        foregroundWidgetLayout.setContentsMargins(0, 0, 0, 0)
         foregroundWidgetLayout.setSpacing(0)
 
         primaryToolbar = QToolBar()
@@ -181,29 +182,32 @@ class MainWindow(QMainWindow):
             for row, netstatRecord in enumerate(sorted(netstatRecords, key=lambda nsr: nsr.localPort)):
                 self.netstatTable.setItem(row, 0, QTableWidgetItem(netstatRecord.localAddress))
                 localPortItem = QTableWidgetItem(str(netstatRecord.localPort))
-                localPortItem.setTextAlignment(Qt.AlignRight|Qt.AlignVCenter)
+                localPortItem.setTextAlignment(Qt.AlignRight | Qt.AlignVCenter)
                 self.netstatTable.setItem(row, 1, localPortItem)
                 self.netstatTable.setItem(row, 2, QTableWidgetItem(netstatRecord.foreignAddress))
                 foreignPortItem = QTableWidgetItem(netstatRecord.foreignPort)
-                foreignPortItem.setTextAlignment(Qt.AlignRight|Qt.AlignVCenter)
+                foreignPortItem.setTextAlignment(Qt.AlignRight | Qt.AlignVCenter)
                 self.netstatTable.setItem(row, 3, foreignPortItem)
                 self.netstatTable.setItem(row, 4, QTableWidgetItem(netstatRecord.state))
                 pidItem = QTableWidgetItem(netstatRecord.pid)
-                pidItem.setTextAlignment(Qt.AlignRight|Qt.AlignVCenter)
+                pidItem.setTextAlignment(Qt.AlignRight | Qt.AlignVCenter)
                 self.netstatTable.setItem(row, 5, pidItem)
                 if netstatRecord.pid != "-":
                     killPidButton = QPushButton("")
                     killPidButton.setIcon(QIcon("icons/killpid.png"))
                     killPidButton.setIconSize(QSize(20, 20))
                     self.netstatTable.setCellWidget(row, 6, killPidButton)
+
                     def make_lambda(pid):
                         return lambda ev: MainWindow.killProcess(pid)
+
                     # noinspection PyUnresolvedReferences
                     killPidButton.clicked.connect(make_lambda(netstatRecord.pid))
         except ChildProcessError as cpe:
             print(cpe)
         except BaseException as be:
             print(be)
+
 
 def main():
     app = QApplication(sys.argv)
