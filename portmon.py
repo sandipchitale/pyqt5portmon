@@ -3,10 +3,10 @@ from os import environ
 from sys import platform
 
 from PyQt5.QtCore import *
-from PyQt5.QtGui import QIcon
+from PyQt5.QtGui import QIcon, QMouseEvent, QPixmap
 from PyQt5.QtWidgets import (QApplication, QMainWindow, QWidget, QGridLayout, QVBoxLayout, QSizePolicy,
                              QToolBar, QPushButton, QLineEdit, QTableWidget, QTableWidgetItem, QCheckBox, QLabel,
-                             QHeaderView, QMessageBox)
+                             QHeaderView, QMessageBox, QHBoxLayout)
 
 from netstat import Netstat, NetstatRecord
 
@@ -15,6 +15,30 @@ class ForegroundWidget(QWidget):
     def __init__(self, mainWindow: QMainWindow):
         super().__init__()
         self.mainWindow = mainWindow
+        self.dragging = False
+        self.prevX = -1
+        self.prevY = -1
+
+    def mousePressEvent(self, e: QMouseEvent):
+        super().mousePressEvent(e)
+        if e.button() == Qt.LeftButton:
+            self.dragging = True
+            self.prevX = e.globalX()
+            self.prevY = e.globalY()
+
+    def mouseMoveEvent(self, e: QMouseEvent):
+        super().mouseMoveEvent(e)
+        if self.dragging:
+            deltaX = e.globalX() - self.prevX
+            deltaY = e.globalY() - self.prevY
+            self.mainWindow.move(self.mainWindow.x() + deltaX, self.mainWindow.y() + deltaY)
+            self.prevX = e.globalX()
+            self.prevY = e.globalY()
+
+    def mouseReleaseEvent(self, e: QMouseEvent):
+        super().mouseReleaseEvent(e)
+        if e.button() == Qt.LeftButton:
+            self.dragging = False
 
 
 class MainWindow(QMainWindow):
@@ -23,6 +47,16 @@ class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
         self.netstatTable = QTableWidget()
+
+        # preload background image pixmap
+        self.backgroundImage = QPixmap("assets/portmon-tablet.png")
+        self.setGeometry(300, 100, self.backgroundImage.size().width(), self.backgroundImage.size().height())
+        self.setWindowOpacity(0.0)
+        self.setAttribute(Qt.WA_NoSystemBackground, True)
+        self.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground)
+        self.setWindowFlags(Qt.WindowType.FramelessWindowHint)
+
+        self.exitButton = QPushButton("⨉")
 
         user = environ.get("USER")
         if platform == "linux" and "root" != user:
@@ -67,30 +101,63 @@ class MainWindow(QMainWindow):
         centralWidgetGridLayout = QGridLayout()
         centralWidget.setLayout(centralWidgetGridLayout)
 
+        # Background label
+        backgroundLabel = QLabel("iaconsole", self)
+        backgroundLabel.setPixmap(self.backgroundImage)
+        # add in cell 0,0
+        centralWidgetGridLayout.addWidget(backgroundLabel, 0, 0)
+
         # Main Panel
         foregroundWidget = ForegroundWidget(self)
+        centralWidgetGridLayout.addWidget(foregroundWidget, 0, 0)
+
+        foregroundWidget.setMouseTracking(True)
+        foregroundWidget.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        foregroundWidget.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
 
         foregroundWidgetLayout = QVBoxLayout()
         foregroundWidget.setLayout(foregroundWidgetLayout)
 
-        centralWidgetGridLayout.addWidget(foregroundWidget, 0, 0)
-        foregroundWidget.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
-
-        foregroundWidgetLayout.setContentsMargins(0, 0, 0, 0)
+        foregroundWidgetLayout.setContentsMargins(21, 22, 20, 50)
         foregroundWidgetLayout.setSpacing(0)
+        foregroundWidgetLayout.setStretch(0, 0)
 
-        primaryToolbar = QToolBar()
+        primaryTitlebar = QWidget()
+        foregroundWidgetLayout.addWidget(primaryTitlebar)
+
+        primaryTitlebarLayout = QHBoxLayout()
+        primaryTitlebar.setLayout(primaryTitlebarLayout)
+        primaryTitlebarLayout.setSpacing(4)
+
+        # logo = QLabel()
+        # logo.setPixmap(QIcon("icons/port.png").pixmap(20, 20))
+        # primaryTitlebarLayout.addWidget(logo)
+        # logo.setStyleSheet("margin-left: 10px;")
+
+        logoLabel = QLabel("Port Monitor")
+        primaryTitlebarLayout.addWidget(logoLabel)
+        logoLabel.setStyleSheet("margin-left: 3px; font-size: 20px; font-weight: bold; color: #333;")
+
+        primaryTitlebarLayout.addStretch(1)
+
+        self.exitButton.setStyleSheet("border-radius: 14px; border: 1 solid #bbb; padding: 6px 10px;")
+        # noinspection PyUnresolvedReferences
+        self.exitButton.clicked.connect(lambda: sys.exit(0))
+        primaryTitlebarLayout.addWidget(self.exitButton)
+
+        primaryToolbar = QWidget()
         foregroundWidgetLayout.addWidget(primaryToolbar)
 
-        primaryToolbarLayout = primaryToolbar.layout()
+        primaryToolbarLayout = QHBoxLayout()
+        primaryToolbar.setLayout(primaryToolbarLayout)
         primaryToolbarLayout.setSpacing(4)
 
-        portsLabel = QLabel("")
-        portsLabel.setPixmap(QIcon("icons/port.png").pixmap(20, 20))
+        portsLabel = QLabel("Ports filter:")
+        # portsLabel.setPixmap(QIcon("icons/port.png").pixmap(20, 20))
         portsLabel.setToolTip("Specify comma separated list of ports to show. e.g. 8080,9090")
-        primaryToolbar.addWidget(portsLabel)
+        primaryToolbarLayout.addWidget(portsLabel)
 
-        primaryToolbar.addWidget(self.ports)
+        primaryToolbarLayout.addWidget(self.ports)
         self.ports.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
 
         refreshButton = QPushButton()
@@ -98,11 +165,7 @@ class MainWindow(QMainWindow):
         refreshButton.setIconSize(QSize(20, 20))
         # noinspection PyUnresolvedReferences
         refreshButton.clicked.connect(self.refresh)
-        primaryToolbar.addWidget(refreshButton)
-
-        primaryToolbar.addWidget(QLabel("  "))
-
-        foregroundWidgetLayout.setStretch(0, 0)
+        primaryToolbarLayout.addWidget(refreshButton)
 
         statesToolbar = QToolBar()
         foregroundWidgetLayout.addWidget(statesToolbar)
