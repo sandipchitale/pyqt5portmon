@@ -64,7 +64,7 @@ class MainWindow(QMainWindow):
 
         self.ports = QLineEdit()
 
-        self.netstatRecordsCount = QLabel("Count: 0")
+        self.netstatRecordsCount = QLabel("  Count: 0")
 
         self.close_wait = QCheckBox("CLOSE_WAIT    ")
         self.close_wait.setChecked(False)
@@ -81,7 +81,7 @@ class MainWindow(QMainWindow):
         # noinspection PyUnresolvedReferences
         self.listen.clicked.connect(lambda: self.refresh())
 
-        self.time_wait = QCheckBox("TIME_WAIT  ")
+        self.time_wait = QCheckBox("TIME_WAIT")
         self.time_wait.setChecked(False)
         # noinspection PyUnresolvedReferences
         self.time_wait.clicked.connect(lambda: self.refresh())
@@ -167,20 +167,20 @@ class MainWindow(QMainWindow):
         refreshButton.clicked.connect(self.refresh)
         primaryToolbarLayout.addWidget(refreshButton)
 
-        statesToolbar = QToolBar()
-        foregroundWidgetLayout.addWidget(statesToolbar)
+        secondaryToolbar = QToolBar()
+        foregroundWidgetLayout.addWidget(secondaryToolbar)
 
-        statesToolbar.addWidget(self.netstatRecordsCount)
+        secondaryToolbar.addWidget(self.netstatRecordsCount)
 
         stretcher = QLabel("")
         stretcher.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
-        statesToolbar.addWidget(stretcher)
+        secondaryToolbar.addWidget(stretcher)
 
-        statesToolbar.addWidget(QLabel("States:    "))
-        statesToolbar.addWidget(self.close_wait)
-        statesToolbar.addWidget(self.established)
-        statesToolbar.addWidget(self.listen)
-        statesToolbar.addWidget(self.time_wait)
+        secondaryToolbar.addWidget(QLabel("States:    "))
+        secondaryToolbar.addWidget(self.close_wait)
+        secondaryToolbar.addWidget(self.established)
+        secondaryToolbar.addWidget(self.listen)
+        secondaryToolbar.addWidget(self.time_wait)
 
         foregroundWidgetLayout.setStretch(1, 0)
 
