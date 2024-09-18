@@ -118,7 +118,7 @@ class MainWindow(QMainWindow):
         foregroundWidgetLayout = QVBoxLayout()
         foregroundWidget.setLayout(foregroundWidgetLayout)
 
-        foregroundWidgetLayout.setContentsMargins(21, 22, 20, 50)
+        foregroundWidgetLayout.setContentsMargins(21, 22, 21, 50)
         foregroundWidgetLayout.setSpacing(0)
         foregroundWidgetLayout.setStretch(0, 0)
 
