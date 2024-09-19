@@ -42,11 +42,12 @@ class ForegroundWidget(QWidget):
 
 
 class MainWindow(QMainWindow):
-    COLUMN_HEADERS = ("Local Address", "Local Port", "Foreign Address", "Foreign Port", "State", "PID", "Kill")
+    COLUMN_HEADERS = ("Local Address", "Local Port ", "Foreign Address", "Foreign Port ", "State", "PID ", "Kill")
 
     def __init__(self):
         super().__init__()
         self.netstatTable = QTableWidget()
+        self.netstatTable.setSortingEnabled(True)
 
         # preload background image pixmap
         self.backgroundImage = QPixmap("assets/portmon-tablet.png")
@@ -188,10 +189,10 @@ class MainWindow(QMainWindow):
         foregroundWidgetLayout.addWidget(self.netstatTable)
 
         self.netstatTable.setColumnCount(7)
-        self.netstatTable.setColumnWidth(0, 110)
-        self.netstatTable.setColumnWidth(1, 80)
-        self.netstatTable.setColumnWidth(2, 110)
-        self.netstatTable.setColumnWidth(3, 80)
+        self.netstatTable.setColumnWidth(0, 90)
+        self.netstatTable.setColumnWidth(1, 100)
+        self.netstatTable.setColumnWidth(2, 90)
+        self.netstatTable.setColumnWidth(3, 100)
         self.netstatTable.setColumnWidth(4, 100)
         self.netstatTable.setColumnWidth(5, 80)
         self.netstatTable.setColumnWidth(6, 20)
@@ -240,19 +241,27 @@ class MainWindow(QMainWindow):
             netstatRecords = sorted(netstatRecords, key=lambda nsr: nsr.localPort)
 
             self.netstatTable.setRowCount(len(netstatRecords))
-            self.netstatRecordsCount.setText(f"Count: {len(netstatRecords)}")
+            self.netstatRecordsCount.setText(f"  Count: {len(netstatRecords)}")
             for row, netstatRecord in enumerate(sorted(netstatRecords, key=lambda nsr: nsr.localPort)):
-                self.netstatTable.setItem(row, 0, QTableWidgetItem(netstatRecord.localAddress))
-                localPortItem = QTableWidgetItem(str(netstatRecord.localPort))
+                self.netstatTable.setItem(row, 0, QTableWidgetItem(f"  {netstatRecord.localAddress}"))
+                localPortItem = QTableWidgetItem()
                 localPortItem.setTextAlignment(Qt.AlignRight | Qt.AlignVCenter)
+                localPortItem.setData(Qt.DisplayRole, netstatRecord.localPort)
                 self.netstatTable.setItem(row, 1, localPortItem)
-                self.netstatTable.setItem(row, 2, QTableWidgetItem(netstatRecord.foreignAddress))
+
+                self.netstatTable.setItem(row, 2, QTableWidgetItem(f"  {netstatRecord.foreignAddress}"))
                 foreignPortItem = QTableWidgetItem(netstatRecord.foreignPort)
                 foreignPortItem.setTextAlignment(Qt.AlignRight | Qt.AlignVCenter)
                 self.netstatTable.setItem(row, 3, foreignPortItem)
-                self.netstatTable.setItem(row, 4, QTableWidgetItem(netstatRecord.state))
+                self.netstatTable.setItem(row, 4, QTableWidgetItem(f"  {netstatRecord.state}"))
                 pidItem = QTableWidgetItem(netstatRecord.pid)
                 pidItem.setTextAlignment(Qt.AlignRight | Qt.AlignVCenter)
+
+                if netstatRecord.pid == "-":
+                    pidItem.setData(Qt.DisplayRole, netstatRecord.pid )
+                else:
+                    pidItem.setData(Qt.DisplayRole, int(netstatRecord.pid))
+
                 self.netstatTable.setItem(row, 5, pidItem)
                 if netstatRecord.pid != "-":
                     killPidButton = QPushButton("")
